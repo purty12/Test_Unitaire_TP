@@ -2,50 +2,58 @@ package Exercice2Test;
 
 import Exercice2.InventoryManager;
 import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
 
 public class InventoryManagerTest {
     private InventoryManager inventoryManager;
 
-    @BeforeEach
-    public void setUp() {
+    public InventoryManagerTest() {
         inventoryManager = new InventoryManager();
     }
 
-    @Test
-    public void testAddProduct() {
-        inventoryManager.addProduct("Product 1", 100);
-        int stockAvailability = inventoryManager.getAvailableStock("Product 1");
-        Assertions.assertEquals(100, stockAvailability);
+    @ParameterizedTest
+    @CsvSource({"Product 1, 100"})
+    public void testAddProduct(String product, int quantity) {
+        inventoryManager.addProduct(product, quantity);
+        int stockAvailability = inventoryManager.getAvailableStock(product);
+        Assertions.assertEquals(quantity, stockAvailability);
     }
 
-    @Test
-    public void testRemoveProductSufficientStock() {
-        inventoryManager.addProduct("Product 2", 50);
-        inventoryManager.removeProduct("Product 2", 20);
-        int stockAvailability = inventoryManager.getAvailableStock("Product 2");
-        Assertions.assertEquals(30, stockAvailability);
+    @ParameterizedTest
+    @CsvSource({"Product 2, 50, 20"})
+    public void testRemoveProductSufficientStock(String product, int initialQuantity, int quantityToRemove) {
+        int expectedAvailability = initialQuantity - quantityToRemove;
+
+        inventoryManager.addProduct(product, initialQuantity);
+        inventoryManager.removeProduct(product, quantityToRemove);
+        int stockAvailability = inventoryManager.getAvailableStock(product);
+
+        Assertions.assertEquals(expectedAvailability, stockAvailability);
     }
 
-    @Test
-    public void testRemoveProductInsufficientStock() {
-        inventoryManager.addProduct("Product 3", 7);
+    @ParameterizedTest
+    @CsvSource({"Product 3, 7, 10"})
+    public void testRemoveProductInsufficientStock(String product, int initialQuantity, int quantityToRemove) {
+        inventoryManager.addProduct(product, initialQuantity);
+
         Assertions.assertThrows(IllegalArgumentException.class,
-                () -> inventoryManager.removeProduct("Product 3", 10));
+                () -> inventoryManager.removeProduct(product, quantityToRemove));
     }
 
-    @Test
-    public void testRemoveProductOutOfStock() {
-        inventoryManager.addProduct("Product 4", 0);
+    @ParameterizedTest
+    @CsvSource({"Product 4, 0, 1"})
+    public void testRemoveProductOutOfStock(String product, int initialQuantity, int quantityToRemove) {
+        inventoryManager.addProduct(product, initialQuantity);
+
         Assertions.assertThrows(IllegalArgumentException.class,
-                () -> inventoryManager.removeProduct("Product 4", 1));
+                () -> inventoryManager.removeProduct(product, quantityToRemove));
     }
 
-    @Test
-    public void testRemoveProductNonExistingProduct() {
+    @ParameterizedTest
+    @CsvSource({"Produit non existant, 1"})
+    public void testRemoveProductNonExistingProduct(String product, int quantityToRemove) {
         Assertions.assertThrows(IllegalArgumentException.class,
-                () -> inventoryManager.removeProduct("Produit non existant", 1));
+                () -> inventoryManager.removeProduct(product, quantityToRemove));
     }
 }
-
