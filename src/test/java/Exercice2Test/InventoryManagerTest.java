@@ -22,7 +22,7 @@ public class InventoryManagerTest {
 
     @Test
     public void testRemoveProductSufficientStock() {
-        inventoryManager.addProduct("Product 2", 51);
+        inventoryManager.addProduct("Product 2", 50);
         inventoryManager.removeProduct("Product 2", 20);
         int stockAvailability = inventoryManager.getAvailableStock("Product 2");
         Assertions.assertEquals(30, stockAvailability);
@@ -30,7 +30,7 @@ public class InventoryManagerTest {
 
     @Test
     public void testRemoveProductInsufficientStock() {
-        inventoryManager.addProduct("Product 3", 11);
+        inventoryManager.addProduct("Product 3", 7);
         Assertions.assertThrows(IllegalArgumentException.class,
                 () -> inventoryManager.removeProduct("Product 3", 10));
     }
